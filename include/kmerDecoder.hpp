@@ -10,6 +10,8 @@
 #include <zlib.h>
 #include <cstdio>
 #include <kseq/kseq.h>
+#include <fstream>
+#include <sstream>
 
 KSEQ_INIT(gzFile, gzread)
 
@@ -116,6 +118,103 @@ public:
         gzclose(this->fp);
         this->kmers.clear();
     }
+
+};
+
+/* 
+--------------------------------------------------------
+                        Custom Items (new..)
+--------------------------------------------------------
+*/
+
+
+
+
+class CSVRow
+{
+    public:
+        std::string const& operator[](std::size_t index) const
+        {
+            return m_data[index];
+        }
+        std::size_t size() const
+        {
+            return m_data.size();
+        }
+        void readNextRow(std::istream& str)
+        {
+            std::string         line;
+            std::getline(str, line);
+
+            std::stringstream   lineStream(line);
+            std::string         cell;
+
+            m_data.clear();
+            while(std::getline(lineStream, cell, '\t'))
+            {
+                m_data.push_back(cell);
+            }
+            // This checks for a trailing comma with no data after it.
+            if (!lineStream && cell.empty())
+            {
+                // If there was a trailing comma then add an empty element.
+                m_data.push_back("");
+            }
+        }
+    private:
+        std::vector<std::string>    m_data;
+};
+
+
+
+class Items : public kmerDecoder {
+
+private:
+
+    void extractKmers();
+
+    std::hash<std::string> child_hasher;
+    flat_hash_map<uint64_t, std::string> hash_to_str;
+    flat_hash_map<std::string, std::vector<std::string>> parent_to_children;
+    std::string slicing_mode = "items";
+
+    std::string filename;
+    bool END = false;
+
+public:
+    int kSize = 32;
+    CSVRow row;
+    ifstream file;
+
+    void setHashingMode(int hash_mode, bool canonical = true);
+    void seq_to_kmers(std::string &seq, std::vector<kmer_row> &kmers);
+
+    Items() {
+
+    }
+
+    Items(const std::string &filename);
+
+
+    int get_kSize() {
+        return this->kSize;
+    }
+
+
+    // hash single item
+    uint64_t hash_kmer(const std::string &item_str) {
+        return this->child_hasher(item_str);
+    }
+
+    // Inverse hash single item
+    std::string ihash_kmer(const uint64_t &item_hash) {
+        return this->hash_to_str[item_hash];
+    }
+
+    bool end();
+
+    void next_chunk();
+
 
 };
 

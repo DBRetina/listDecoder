@@ -71,6 +71,7 @@ file(GLOB SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/KD_kmers.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/KD_skipmers.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/KD_minimizers.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/items.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/KD_aakmers.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/HashUtils/hashutil.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/HashUtils/aaHasher.cpp"
@@ -84,6 +85,7 @@ set_target_properties(kmerDecoder PROPERTIES CXX_STANDARD 17)
 set(PHMAP_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/lib/parallel-hashmap")
 set(KMERDECODER_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
 set(KSEQ_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/lib/kseq")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/gzstream")
 
 
 target_include_directories(
